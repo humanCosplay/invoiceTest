@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+
+{% block confirmation_form %}
+<form name="Pay" method="post" action="{{confirmation_form.action.data}}" accept-charset="UTF-8">
+    {{ confirmation_form.hidden_tag() }}
+    {{ confirmation_form.m_curorderid }}
+    {{ confirmation_form.m_historyid }}
+    {{ confirmation_form.m_historytm }}
+    {{ confirmation_form.lang }}
+    {{ confirmation_form.referer }}
+    {{ confirmation_form.submit(class="btn btn-primary") }}
+  </form>
+{% endblock %}
