@@ -9,6 +9,9 @@
     {{ confirmation_form.shop_order_id }}
     {{ confirmation_form.shop_id }}
     {{ confirmation_form.sign }}
-    {{ confirmation_form.submit(class="btn btn-primary") }}
+    <div class="form-row">
+      {{ confirmation_form.submit(class="btn btn-primary") }}
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    </div>
   </form>
 {% endblock %}

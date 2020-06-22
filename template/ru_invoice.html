@@ -1,13 +1,39 @@
 {% extends "index.html" %}
 
 {% block confirmation_form %}
-<form name="Pay" method="post" action="{{confirmation_form.action.data}}" accept-charset="UTF-8">
+<form name="Pay" method="{{confirmation_form.method.data}}" action="{{confirmation_form.action.data}}" accept-charset="UTF-8">
     {{ confirmation_form.hidden_tag() }}
-    {{ confirmation_form.m_curorderid }}
-    {{ confirmation_form.m_historyid }}
-    {{ confirmation_form.m_historytm }}
-    {{ confirmation_form.lang }}
-    {{ confirmation_form.referer }}
-    {{ confirmation_form.submit(class="btn btn-primary") }}
+    <div class="form-row">
+      <div class="col-md-2 form-group">
+        {{ confirmation_form.lang.label(class="form-control-label") }}
+        {{ confirmation_form.lang(class="form-control") }}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-md-5 form-group">
+        {{ confirmation_form.m_curorderid.label(class="form-control-label") }}
+        {{ confirmation_form.m_curorderid(class="form-control") }}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-md-5 form-group">
+        {{ confirmation_form.m_historyid.label(class="form-control-label") }}
+        {{ confirmation_form.m_historyid(class="form-control") }}
+      </div>
+      <div class="col-md-5 form-group">
+        {{ confirmation_form.m_historytm.label(class="form-control-label") }}
+        {{ confirmation_form.m_historytm(class="form-control") }}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-md-12 form-group">
+        {{ confirmation_form.referer.label(class="form-control-label") }}
+        {{ confirmation_form.referer(class="form-control") }}
+      </div>
+    </div>
+    <div class="form-row">
+      {{ confirmation_form.submit(class="btn btn-primary") }}
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    </div>
   </form>
 {% endblock %}
