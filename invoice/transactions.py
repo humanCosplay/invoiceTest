@@ -125,17 +125,21 @@ class Invoice(Transaction):
                             external_form.description.data)
             return render_template(self.template, 
                                    form=external_form, 
-                                   confirmation_form=self.create_confirmation_form())
+                                   confirmation_form=self.create_confirmation_form(json_response))
         
         flash('Payment request failed!', 'danger')
         return render_template("index.html", form=external_form)
 
+    def make_request_params(self):
+        request = self.make_seed_for_sign()
+        sign = self.make_secret(request)
+        request["sign"] = sign
+        request["description"] = self.description
+        return request
+
     def get_api_invoice_response(self):
-        json_request = self.make_seed_for_sign()
-        sign = self.make_secret(json_request)
-        json_request["sign"] = sign
-        json_request["amount"] = str(json_request["amount"])
-        response = requests.post("https://core.piastrix.com/bill/create", json=json_request)
+        json_request = self.make_request_params()
+        response = requests.post("https://core.piastrix.com/invoice/create", json=json_request)
 
         if response.status_code != 200:
             return None
@@ -147,8 +151,9 @@ class Invoice(Transaction):
         return json_response
 
     def create_confirmation_form(self, response):
-        data = response['data']
-        data['url'] = response['url']
+        data = response['data']['data']
+        data['action'] = response['data']['url']
+        data['method'] = response['data']['method']
         confirmation_form = InvoiceForm(**data)
         return confirmation_form
     

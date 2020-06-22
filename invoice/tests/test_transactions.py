@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_testing import TestCase
-from invoice.transactions import Transaction, Pay, Bill
+from invoice.transactions import Transaction, Pay, Bill, Invoice
 
 
 class MakeSignTest(TestCase):
@@ -101,3 +101,51 @@ class BillTests(TestCase):
                         "shop_order_id": 1,
                         "sign": "d9bbbbffdb55ce3e1d31198058b99be13a916dda823db04f9148ad5a182b369c",
                         "description": "Test"}
+
+
+class InvoiceTest(TestCase):
+    def create_app(self):
+        app = Flask(__name__)
+        app.config["SECRET_KEY"] = "SecretKey01"
+        app.config["TESTING"] = True
+        app.config["SHOP_ID"] = 5
+        return app
+    
+    def setUp(self):
+        self.inv = Invoice(111, "Test", 1)
+
+    def test_seed_for_sign(self):
+        seed = self.inv.make_seed_for_sign()
+        assert seed == {"amount": "111.00",
+                        "currency": 643,
+                        "payway": "payeer_rub",
+                        "shop_id": self.app.config["SHOP_ID"],
+                        "shop_order_id": 1}
+
+    def test_request_params(self):
+        params = self.inv.make_request_params()
+        assert params == {"amount": "111.00", 
+                          "currency": 643,
+                          "shop_id": self.app.config["SHOP_ID"],
+                          "shop_order_id": 1,
+                          "payway": "payeer_rub",
+                          "sign": "dd5c743aa3e4c4b1d0427f82eb0eb06a12c189e27a5eaf245754274d96e2a7c0",
+                          "description": "Test"}
+
+    def test_confirmation_form(self):
+        response = {"data": {"data": {"m_curorderid": 1,
+                                      "m_historyid": 1,
+                                      "m_historytm": 1,
+                                      "referer": "http://another_dummy.com?id=243543",
+                                      "lang": "ru"},
+                            "url": "http://dummy.com", 
+                            "method":"GET"}}
+        form = self.inv.create_confirmation_form(response)
+        
+        assert form.m_curorderid.data == 1
+        assert form.m_historyid.data  == 1
+        assert form.m_historytm.data  == 1
+        assert form.referer.data      == "http://another_dummy.com?id=243543"
+        assert form.lang.data         == "ru"
+        assert form.action.data       == "http://dummy.com"
+        assert form.method.data       == "GET"
