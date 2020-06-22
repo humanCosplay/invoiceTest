@@ -10,6 +10,7 @@ class Configuration(object):
     DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = ''
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = False
     CSRF_ENABLED = True
     CSRF_SESSION_KEY = ''
