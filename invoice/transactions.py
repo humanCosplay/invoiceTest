@@ -7,6 +7,12 @@ from invoice import db
 
 
 class Transaction:
+
+    def __init__(self, amount, description, shop_order_id):
+        self.amount = amount
+        self.shop_order_id = shop_order_id
+        self.description = description
+
     def process_paymnet(self):
         pass
 
@@ -21,27 +27,26 @@ class Transaction:
         hashable_request = hashable_request + current_app.config['SECRET_KEY']
         return sha256(hashable_request.encode()).hexdigest()
 
+    def str_amount(self):
+        return f"{self.amount:.2f}"
+
 
 class Pay(Transaction):
     template = "eu_pay.html"
 
     def __init__(self, amount, description, shop_order_id):
-        self.amount = amount
+        super().__init__(amount, description, shop_order_id)
         self.currency = CURRENCY[0][2]
-        self.shop_order_id = shop_order_id
-        self.description = description
     
     def create_confirmation_form(self):
-        confirmation_form = PayForm(amount=self.amount,
-                                currency=self.currency,
-                                shop_id=current_app.config["SHOP_ID"],
+        confirmation_form = PayForm(shop_id=current_app.config["SHOP_ID"],
                                 shop_order_id=self.shop_order_id,
                                 description=self.description,
                                 action="https://pay.piastrix.com/ru/pay")
 
-        sign = self.make_secret(self.make_seed_for_sign())
-        confirmation_form.sign.data = sign
-
+        confirmation_form.sign.data = self.make_secret(self.make_seed_for_sign())
+        confirmation_form.amount.data = self.str_amount()
+        confirmation_form.currency.data = self.currency
         return confirmation_form
 
     def process_payment(self, external_form):
@@ -53,7 +58,7 @@ class Pay(Transaction):
                                 confirmation_form=self.create_confirmation_form())
     
     def make_seed_for_sign(self):
-        return {"amount": self.amount,
+        return {"amount": self.str_amount(),
                 "currency": self.currency,
                 "shop_id": current_app.config["SHOP_ID"],
                 "shop_order_id": self.shop_order_id}
@@ -63,10 +68,8 @@ class Bill(Transaction):
     template = "index.html"
 
     def __init__(self, amount, description, shop_order_id):
-        self.amount = amount
+        super().__init__(amount, description, shop_order_id)
         self.currency = CURRENCY[1][2]
-        self.shop_order_id = shop_order_id
-        self.description = description
     
     def get_api_bill_response(self):
         json_request = self.make_seed_for_sign()
@@ -95,7 +98,7 @@ class Bill(Transaction):
         return render_template(self.template, form=external_form)
     
     def make_seed_for_sign(self):
-        return {"shop_amount": str(self.amount),
+        return {"shop_amount": self.str_amount(),
                 "shop_currency": self.currency,
                 "payer_currency": self.currency,
                 "shop_id": current_app.config["SHOP_ID"],
@@ -106,10 +109,8 @@ class Invoice(Transaction):
     template = "ru_invoice.html"
 
     def __init__(self, amount, description, shop_order_id):
-        self.amount = amount
+        super().__init__(amount, description, shop_order_id)
         self.currency = CURRENCY[2][2]
-        self.shop_order_id = shop_order_id
-        self.description = description
     
     def process_payment(self, external_form):
         json_response = self.get_api_invoice_response()
@@ -147,7 +148,7 @@ class Invoice(Transaction):
         return confirmation_form
     
     def make_seed_for_sign(self):
-        return {"amount": self.amount,
+        return {"amount": self.str_amount(),
                 "currency": self.currency,
                 "payway": "payeer_rub",
                 "shop_id": current_app.config["SHOP_ID"],
