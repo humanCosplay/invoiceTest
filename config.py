@@ -6,7 +6,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
 
 class Configuration(object):
     SECRET_KEY = ''
-    SHOP_ID='12'
+    SHOP_ID= -1
     DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = ''
@@ -21,12 +21,15 @@ class ProductionConfiguration(Configuration):
     # CSRF_SESSION_KEY = ''
     # SQLALCHEMY_DATABASE_URI = ''
     # SHOP_ID=''
+    FLASK_ENV = 'production'
     pass
 
 class DevelopmentConfiguration(Configuration):
+    FLASK_ENV = 'development'
     DEBUG = True
-    SECRET_KEY = "Secret1"
-    CSRF_SESSION_KEY = 'Secret2'
+    SECRET_KEY = "SecretKey01"
+    CSRF_SESSION_KEY = 'SecretKey01'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///payments.db'
     SQLALCHEMY_ECHO = True
     TESTING = True
+    SHOP_ID=12
