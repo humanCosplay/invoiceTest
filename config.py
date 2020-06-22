@@ -12,8 +12,6 @@ class Configuration(object):
     SQLALCHEMY_DATABASE_URI = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = False
-    CSRF_ENABLED = True
-    CSRF_SESSION_KEY = ''
     THREADS_PER_PAGE = 2
 
 class ProductionConfiguration(Configuration):
@@ -29,8 +27,7 @@ class DevelopmentConfiguration(Configuration):
     FLASK_ENV = 'development'
     DEBUG = True
     SECRET_KEY = "SecretKey01"
-    CSRF_SESSION_KEY = 'SecretKey01'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///payments.db'
     SQLALCHEMY_ECHO = True
     TESTING = True
-    SHOP_ID=12
+    SHOP_ID=5
