@@ -28,4 +28,6 @@ class InvoiceForm(FlaskForm):
     m_historytm = IntegerField()
     referer = StringField()
     action = StringField()
+    method = StringField()
+    submit = SubmitField("Confirm")
     lang = StringField()
