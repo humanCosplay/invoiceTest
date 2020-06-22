@@ -70,11 +70,16 @@ class Bill(Transaction):
     def __init__(self, amount, description, shop_order_id):
         super().__init__(amount, description, shop_order_id)
         self.currency = CURRENCY[1][2]
+
+    def make_request_params(self):
+        request = self.make_seed_for_sign()
+        sign = self.make_secret(request)
+        request["sign"] = sign
+        request["description"] = self.description
+        return request
     
     def get_api_bill_response(self):
-        json_request = self.make_seed_for_sign()
-        sign = self.make_secret(json_request)
-        json_request["sign"] = sign
+        json_request = self.make_request_params()
         response = requests.post("https://core.piastrix.com/bill/create", json=json_request)
 
         if response.status_code != 200:
@@ -92,7 +97,7 @@ class Bill(Transaction):
             log_transaction(external_form.amount.data, 
                             external_form.currency.data, 
                             external_form.description.data)
-            return redirect(json_data['url'])
+            return redirect(json_data['data']['url'])
 
         flash('Payment request failed!', 'danger')
         return render_template(self.template, form=external_form)

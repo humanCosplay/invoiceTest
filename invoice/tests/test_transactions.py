@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_testing import TestCase
-from invoice.transactions import Transaction,Pay
+from invoice.transactions import Transaction, Pay, Bill
 
 
 class MakeSignTest(TestCase):
@@ -73,4 +73,31 @@ class PayTests(TestCase):
         assert form.action.data        == "https://pay.piastrix.com/ru/pay"
 
 
+class BillTests(TestCase):
+    def create_app(self):
+        app = Flask(__name__)
+        app.config["SECRET_KEY"] = "SecretKey01"
+        app.config["TESTING"] = True
+        app.config["SHOP_ID"] = 5
+        return app
+
+    def setUp(self):
+        self.bill = Bill(111, "Test", 1)
     
+    def test_seed_for_sign(self):
+        seed = self.bill.make_seed_for_sign()
+        assert seed == {"shop_amount": "111.00", 
+                        "shop_currency": 840,
+                        "payer_currency": 840,
+                        "shop_id": self.app.config["SHOP_ID"],
+                        "shop_order_id": 1}
+
+    def test_request_params(self):
+        params = self.bill.make_request_params()
+        assert params == {"shop_amount": "111.00", 
+                        "shop_currency": 840,
+                        "payer_currency": 840,
+                        "shop_id": self.app.config["SHOP_ID"],
+                        "shop_order_id": 1,
+                        "sign": "d9bbbbffdb55ce3e1d31198058b99be13a916dda823db04f9148ad5a182b369c",
+                        "description": "Test"}
